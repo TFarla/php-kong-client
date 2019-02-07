@@ -1,0 +1,43 @@
+{
+  "name": "tfarla/kong-client",
+  "description": "PHP client for the kong API gateway",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Thomas Farla",
+      "email": "thomas-farla@hotmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "TFarla\\KongClient\\": "./src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\KongClient\\": "./tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit tests",
+    "analyze": "phpstan analyse src tests --level=7",
+    "cs": "phpcs --standard=psr2 src tests",
+    "cs-fix": "phpcbf --standard=psr2 src tests",
+    "md": "phpmd src,tests text codesize,unusedcode,naming,controversial,design",
+    "ci": "composer run cs && composer run md && composer run analyze && composer run test"
+  },
+  "require": {
+    "phpunit/phpunit": "^8.0",
+    "psr/http-message": "^1.0",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master",
+    "phpmd/phpmd": "^2.6",
+    "phpstan/phpstan": "^0.11.1",
+    "squizlabs/php_codesniffer": "^3.4",
+    "php-http/mock-client": "^1.2",
+    "nyholm/psr7": "^1.0",
+    "spatie/phpunit-snapshot-assertions": "^2.1"
+  }
+}

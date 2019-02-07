@@ -1,0 +1,31 @@
+{
+  "data": [{
+    "id": "f00c6da4-3679-4b44-b9fb-36a19bd3ae83",
+    "created_at": 1422386534,
+    "updated_at": 1422386534,
+    "name": "my-service",
+    "retries": 5,
+    "protocol": "http",
+    "host": "example.com",
+    "port": 80,
+    "path": "/some_api",
+    "connect_timeout": 60000,
+    "write_timeout": 60000,
+    "read_timeout": 60000
+  }, {
+    "id": "bdab0e47-4e37-4f0b-8fd0-87d95cc4addc",
+    "created_at": 1422386534,
+    "updated_at": 1422386534,
+    "name": "my-service",
+    "retries": 5,
+    "protocol": "http",
+    "host": "example.com",
+    "port": 80,
+    "path": "/another_api",
+    "connect_timeout": 60000,
+    "write_timeout": 60000,
+    "read_timeout": 60000
+  }],
+
+  "next": "http://localhost:8001/services?offset=6378122c-a0a1-438d-a5c6-efabae9fb969"
+}
