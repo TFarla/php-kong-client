@@ -27,8 +27,8 @@
     "ci": "composer run cs && composer run md && composer run analyze && composer run test  -- --coverage-clover build/logs/clover.xml"
   },
   "require": {
-    "phpunit/phpunit": "^8.0",
     "psr/http-message": "^1.0",
+    "php-http/client-implementation": "^1.0",
     "ext-json": "*"
   },
   "require-dev": {
@@ -39,6 +39,7 @@
     "php-http/mock-client": "^1.2",
     "nyholm/psr7": "^1.0",
     "spatie/phpunit-snapshot-assertions": "^2.1",
-    "php-coveralls/php-coveralls": "^2.1"
+    "php-coveralls/php-coveralls": "^2.1",
+    "phpunit/phpunit": "^8.0"
   }
 }
