@@ -3,7 +3,6 @@
 
 namespace Test\KongClient;
 
-
 use Http\Mock\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
