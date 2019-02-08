@@ -41,15 +41,4 @@ class ServicePaginatedResult
     {
         return $this->next;
     }
-
-    /**
-     * @param array $anArray
-     * @return ServicePaginatedResult
-     */
-    public static function __set_state(array $anArray)
-    {
-        $obj = new self($anArray['data'], $anArray['next']);
-
-        return $obj;
-    }
 }
