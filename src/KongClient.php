@@ -35,6 +35,7 @@ class KongClient
 
     /**
      * @return ServicePaginatedResult
+     * @throws \Http\Client\Exception
      */
     public function getServices(): ServicePaginatedResult
     {
@@ -73,7 +74,28 @@ class KongClient
         $rawService = ServiceTransformer::toArray($service);
         $response = $this->jsonClient->post('/services', [], [], $rawService);
         $body = $this->jsonClient->readBody($response);
-        
+
         return ServiceTransformer::fromJson($body);
+    }
+
+    public function putService(Service $service): Service
+    {
+        $id = $service->getId();
+        if (is_null($id)) {
+            throw new \InvalidArgumentException('Can not update a service when it has no id');
+        }
+
+        $uri = "/services/$id";
+        $rawService = ServiceTransformer::toArray($service);
+        $response = $this->jsonClient->put($uri, [], [], $rawService);
+        $body = $this->jsonClient->readBody($response);
+
+        return ServiceTransformer::fromJson($body);
+    }
+
+    public function deleteService(string $id): void
+    {
+        $uri = "/services/$id";
+        $this->jsonClient->delete($uri);
     }
 }

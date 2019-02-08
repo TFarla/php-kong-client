@@ -86,13 +86,7 @@ class KongClientTest extends TestCase
     public function itShouldPostService()
     {
         $fixture = 'service.json';
-        $data = $this->fixture($fixture);
-        $contents = file_get_contents($data);
-        if (!$contents) {
-            throw new \Exception('Failed getting contents');
-        }
-
-        $decoded = Json::decode($contents);
+        list($fixturePath, $decoded) = $this->readFixtureFromFile($fixture);
         $service = ServiceTransformer::fromJson($decoded);
 
         $this->addMockResponse($fixture);
@@ -101,11 +95,62 @@ class KongClientTest extends TestCase
         $this->assertNotFalse($lastRequest, 'No request has been sent');
 
         $body = $lastRequest->getBody()->getContents();
-        $this->assertJsonStringEqualsJsonFile($data, $body);
+        $this->assertJsonStringEqualsJsonFile($fixturePath, $body);
         $this->assertEquals(
             $actual,
             $service
         );
+    }
+
+    /** @test */
+    public function itShouldPutService()
+    {
+        $fixture = 'service.json';
+        list($fixturePath, $decoded) = $this->readFixtureFromFile($fixture);
+        $service = ServiceTransformer::fromJson($decoded);
+
+        $this->addMockResponse($fixture);
+        $actual = $this->kong->putService($service);
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertNotFalse($lastRequest, 'No request has been sent');
+        $this->assertSame('PUT', $lastRequest->getMethod());
+        $this->assertSame(
+            "/services/{$service->getId()}",
+            $lastRequest->getUri()->getPath()
+        );
+
+        $body = $lastRequest->getBody()->getContents();
+        $this->assertJsonStringEqualsJsonFile($fixturePath, $body);
+        $this->assertEquals($service, $actual);
+    }
+
+    /** @test */
+    public function itShouldOnlyPutWhenTheServiceHasAnId()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $fixture = 'service.json';
+        $data = $this->readFixtureFromFile($fixture);
+        $service = ServiceTransformer::fromJson($data[1]);
+        $service->setId(null);
+        $this->kong->putService($service);
+    }
+
+    /** @test */
+    public function itShouldDeleteService()
+    {
+        $id = 'test';
+        $response = $this->requestFactory->createResponse(204);
+        $this->mockClient->addResponse($response);
+        $this->kong->deleteService($id);
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertRequestHasBeenSent($this->mockClient);
+        $this->assertSame('DELETE', $lastRequest->getMethod());
+        $this->assertSame("/services/$id", $lastRequest->getUri()->getPath());
+    }
+
+    protected function assertRequestHasBeenSent(Client $client)
+    {
+        $this->assertNotFalse($client->getLastRequest(), 'No request has been sent');
     }
 
     public function servicesFixtureProvider()
@@ -130,5 +175,22 @@ class KongClientTest extends TestCase
         $body = $this->requestFactory->createStreamFromFile($fixture);
         $response = $this->requestFactory->createResponse()->withBody($body);
         $this->mockClient->addResponse($response);
+    }
+
+    /**
+     * @param string $fixture
+     * @return array
+     * @throws \Exception
+     */
+    private function readFixtureFromFile(string $fixture): array
+    {
+        $fixturePath = $this->fixture($fixture);
+        $contents = file_get_contents($fixturePath);
+        if (!$contents) {
+            throw new \Exception('Failed getting contents');
+        }
+
+        $decoded = Json::decode($contents);
+        return [$fixturePath, $decoded];
     }
 }

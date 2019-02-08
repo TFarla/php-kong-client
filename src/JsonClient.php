@@ -72,6 +72,31 @@ class JsonClient
     }
 
     /**
+     * @param string $uri
+     * @param array $headers
+     * @param array $queryParams
+     * @param mixed|null $body
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \Http\Client\Exception
+     */
+    public function put(string $uri, array $headers = [], array $queryParams = [], $body = null)
+    {
+        return $this->send('PUT', $uri, $headers, $queryParams, $body);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $headers
+     * @param array $queryParams
+     * @return ResponseInterface
+     * @throws \Http\Client\Exception
+     */
+    public function delete(string $uri, array $headers = [], array $queryParams = [])
+    {
+        return $this->send('DELETE', $uri, $headers, $queryParams);
+    }
+
+    /**
      * @return mixed
      * @param ResponseInterface $response
      */
