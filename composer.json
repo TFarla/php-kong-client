@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "test": "phpunit tests",
+    "test": "phpunit tests -c phpunit.xml",
     "analyze": "phpstan analyse src tests --level=7",
     "cs": "phpcs --standard=psr2 src tests",
     "cs-fix": "phpcbf --standard=psr2 src tests",
