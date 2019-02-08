@@ -11,19 +11,9 @@ use Psr\Http\Message\StreamFactoryInterface;
 class KongClient
 {
     /**
-     * @var HttpClient
+     * @var JsonClient
      */
-    private $httpClient;
-
-    /**
-     * @var RequestFactoryInterface
-     */
-    private $requestFactory;
-
-    /**
-     * @var StreamFactoryInterface
-     */
-    private $streamFactory;
+    private $jsonClient;
 
     /**
      * KongClient constructor.
@@ -36,9 +26,11 @@ class KongClient
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory
     ) {
-        $this->httpClient = $httpClient;
-        $this->requestFactory = $requestFactory;
-        $this->streamFactory = $streamFactory;
+        $this->jsonClient = new JsonClient(
+            $httpClient,
+            $requestFactory,
+            $streamFactory
+        );
     }
 
     /**
@@ -46,12 +38,9 @@ class KongClient
      */
     public function getServices(): ServicePaginatedResult
     {
-        $request = $this->requestFactory->createRequest('GET', '/services')
-            ->withHeader('Content-Type', 'application/json charset=utf-8')
-            ->withHeader('Accept', 'application/json charset=utf-8');
+        $response = $this->jsonClient->get('/services');
+        $body = $this->jsonClient->readBody($response);
 
-        $response = $this->httpClient->sendRequest($request);
-        $body = json_decode($response->getBody()->getContents(), true);
         $next = $body['next'] ?? null;
         $data = [];
         foreach ($body['data'] as $rawService) {
@@ -69,13 +58,9 @@ class KongClient
      */
     public function getService(string $nameOrId): ?Service
     {
-        $request = $this->requestFactory->createRequest('GET', "/services/$nameOrId")
-            ->withHeader('Content-Type', 'application/json charset=utf-8')
-            ->withHeader('Accept', 'application/json charset=utf-8');
+        $response = $this->jsonClient->get("/services/$nameOrId");
+        $body = $this->jsonClient->readBody($response);
 
-        $response = $this->httpClient->sendRequest($request);
-
-        $body = json_decode($response->getBody()->getContents(), true);
         return ServiceTransformer::fromJson($body);
     }
 
@@ -86,20 +71,9 @@ class KongClient
     public function postService(Service $service): Service
     {
         $rawService = ServiceTransformer::toArray($service);
-        $body = $this->streamFactory->createStream(Json::encode($rawService));
-        // some process might already have read the stream (during tests)
-        // we should therefore rewind if that's the case
-        if ($body->eof() || ($body->tell() === $body->getSize())) {
-            $body->rewind();
-        }
-
-        $request = $this->requestFactory->createRequest('POST', '/services')
-            ->withBody($body)
-            ->withHeader('Content-Type', 'application/json charset=utf-8')
-            ->withHeader('Accept', 'application/json charset=utf-8');
-
-        $response = $this->httpClient->sendRequest($request);
-        $body = Json::decode($response->getBody()->getContents());
+        $response = $this->jsonClient->post('/services', [], [], $rawService);
+        $body = $this->jsonClient->readBody($response);
+        
         return ServiceTransformer::fromJson($body);
     }
 }
