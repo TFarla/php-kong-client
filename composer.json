@@ -23,7 +23,7 @@
     "analyze": "phpstan analyse src tests --level=7",
     "cs": "phpcs --standard=psr2 src tests",
     "cs-fix": "phpcbf --standard=psr2 src tests",
-    "md": "phpmd src,tests text codesize,unusedcode,naming,controversial,design",
+    "md": "phpmd src,tests text phpmd-ruleset.xml",
     "ci": "composer run cs && composer run md && composer run analyze && composer run test"
   },
   "require": {

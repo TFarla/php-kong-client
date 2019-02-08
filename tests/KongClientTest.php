@@ -2,9 +2,13 @@
 
 namespace Test\KongClient;
 
+use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\StreamFactoryDiscovery;
+use Http\Message\StreamFactory;
 use Http\Mock\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
+use TFarla\KongClient\Json;
 use TFarla\KongClient\KongClient;
 use TFarla\KongClient\ServiceTransformer;
 
@@ -29,7 +33,7 @@ class KongClientTest extends TestCase
 
         $this->mockClient = new Client();
         $this->requestFactory = new Psr17Factory();
-        $this->kong = new KongClient($this->mockClient, $this->requestFactory);
+        $this->kong = new KongClient($this->mockClient, $this->requestFactory, $this->requestFactory);
     }
 
     /**
@@ -46,11 +50,8 @@ class KongClientTest extends TestCase
         foreach ($actual->getData() as $service) {
             $data[] = ServiceTransformer::toArray($service);
         }
-        $json = json_encode(['data' => $data, 'next' => $actual->getNext()]);
-        if (!$json) {
-            throw new \Exception('Serialization failed');
-        }
 
+        $json = Json::encode(['data' => $data, 'next' => $actual->getNext()]);
         $this->assertJsonStringEqualsJsonFile(
             $this->fixture($fixture),
             $json
@@ -69,11 +70,7 @@ class KongClientTest extends TestCase
             throw new \Exception('Service not found');
         }
 
-        $json = json_encode(ServiceTransformer::toArray($actual));
-        if (!$json) {
-            throw new \Exception('Json serialization failed.');
-        }
-
+        $json = Json::encode(ServiceTransformer::toArray($actual));
         $this->assertJsonStringEqualsJsonFile(
             $this->fixture($fixture),
             $json
@@ -83,6 +80,32 @@ class KongClientTest extends TestCase
         $this->assertEquals($lastRequest->getHeader('Accept'), ['application/json charset=utf-8']);
         $this->assertEquals($lastRequest->getHeader('Content-Type'), ['application/json charset=utf-8']);
         $this->assertSame("/services/$serviceName", $lastRequest->getUri()->getPath());
+    }
+
+    /** @test */
+    public function itShouldPostService()
+    {
+        $fixture = 'service.json';
+        $data = $this->fixture($fixture);
+        $contents = file_get_contents($data);
+        if (!$contents) {
+            throw new \Exception('Failed getting contents');
+        }
+
+        $decoded = Json::decode($contents);
+        $service = ServiceTransformer::fromJson($decoded);
+
+        $this->addMockResponse($fixture);
+        $actual = $this->kong->postService($service);
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertNotFalse($lastRequest, 'No request has been sent');
+
+        $body = $lastRequest->getBody()->getContents();
+        $this->assertJsonStringEqualsJsonFile($data, $body);
+        $this->assertEquals(
+            $actual,
+            $service
+        );
     }
 
     public function servicesFixtureProvider()
