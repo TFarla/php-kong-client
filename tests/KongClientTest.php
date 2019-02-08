@@ -2,44 +2,16 @@
 
 namespace Test\KongClient;
 
-use Http\Discovery\Psr17FactoryDiscovery;
-use Http\Discovery\StreamFactoryDiscovery;
-use Http\Message\StreamFactory;
-use Http\Mock\Client;
-use Nyholm\Psr7\Factory\Psr17Factory;
-use PHPUnit\Framework\TestCase;
 use TFarla\KongClient\Json;
-use TFarla\KongClient\KongClient;
 use TFarla\KongClient\ServiceTransformer;
 
-class KongClientTest extends TestCase
+class KongClientTest extends CrudTestCase
 {
-    /**
-     * @var Client
-     */
-    private $mockClient;
-    /**
-     * @var Psr17Factory
-     */
-    private $requestFactory;
-    /**
-     * @var KongClient
-     */
-    private $kong;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->mockClient = new Client();
-        $this->requestFactory = new Psr17Factory();
-        $this->kong = new KongClient($this->mockClient, $this->requestFactory, $this->requestFactory);
-    }
-
     /**
      * @dataProvider servicesFixtureProvider
      * @test
      * @param string $fixture
+     * @throws \Http\Client\Exception
      */
     public function itShouldGetServices(string $fixture)
     {
@@ -77,51 +49,46 @@ class KongClientTest extends TestCase
         );
 
         $lastRequest = $this->mockClient->getLastRequest();
-        $this->assertEquals($lastRequest->getHeader('Accept'), ['application/json charset=utf-8']);
-        $this->assertEquals($lastRequest->getHeader('Content-Type'), ['application/json charset=utf-8']);
         $this->assertSame("/services/$serviceName", $lastRequest->getUri()->getPath());
     }
 
-    /** @test */
-    public function itShouldPostService()
+    /**
+     * @dataProvider mutationProvider
+     * @test
+     */
+    public function itShouldMutateService(string $method)
     {
         $fixture = 'service.json';
         list($fixturePath, $decoded) = $this->readFixtureFromFile($fixture);
         $service = ServiceTransformer::fromJson($decoded);
-
         $this->addMockResponse($fixture);
-        $actual = $this->kong->postService($service);
+        $actual = $this->kong->{$method . 'Service'}($service);
+
         $lastRequest = $this->mockClient->getLastRequest();
         $this->assertNotFalse($lastRequest, 'No request has been sent');
+        $this->assertSame($method, $lastRequest->getMethod());
 
-        $body = $lastRequest->getBody()->getContents();
-        $this->assertJsonStringEqualsJsonFile($fixturePath, $body);
-        $this->assertEquals(
-            $actual,
-            $service
-        );
-    }
+        $uri = '/services';
+        if ($method !== 'POST') {
+            $uri .= "/{$service->getId()}";
+        }
 
-    /** @test */
-    public function itShouldPutService()
-    {
-        $fixture = 'service.json';
-        list($fixturePath, $decoded) = $this->readFixtureFromFile($fixture);
-        $service = ServiceTransformer::fromJson($decoded);
-
-        $this->addMockResponse($fixture);
-        $actual = $this->kong->putService($service);
-        $lastRequest = $this->mockClient->getLastRequest();
-        $this->assertNotFalse($lastRequest, 'No request has been sent');
-        $this->assertSame('PUT', $lastRequest->getMethod());
         $this->assertSame(
-            "/services/{$service->getId()}",
+            $uri,
             $lastRequest->getUri()->getPath()
         );
 
         $body = $lastRequest->getBody()->getContents();
         $this->assertJsonStringEqualsJsonFile($fixturePath, $body);
         $this->assertEquals($service, $actual);
+    }
+
+    public function mutationProvider()
+    {
+        return [
+            ['POST'],
+            ['PUT']
+        ];
     }
 
     /** @test */
@@ -148,49 +115,11 @@ class KongClientTest extends TestCase
         $this->assertSame("/services/$id", $lastRequest->getUri()->getPath());
     }
 
-    protected function assertRequestHasBeenSent(Client $client)
-    {
-        $this->assertNotFalse($client->getLastRequest(), 'No request has been sent');
-    }
-
     public function servicesFixtureProvider()
     {
         return [
             ['services-empty.json'],
             ['services.json']
         ];
-    }
-
-    public function fixture($name): string
-    {
-        return implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', $name]);
-    }
-
-    /**
-     * @param string $fixture
-     */
-    private function addMockResponse(string $fixture): void
-    {
-        $fixture = $this->fixture($fixture);
-        $body = $this->requestFactory->createStreamFromFile($fixture);
-        $response = $this->requestFactory->createResponse()->withBody($body);
-        $this->mockClient->addResponse($response);
-    }
-
-    /**
-     * @param string $fixture
-     * @return array
-     * @throws \Exception
-     */
-    private function readFixtureFromFile(string $fixture): array
-    {
-        $fixturePath = $this->fixture($fixture);
-        $contents = file_get_contents($fixturePath);
-        if (!$contents) {
-            throw new \Exception('Failed getting contents');
-        }
-
-        $decoded = Json::decode($contents);
-        return [$fixturePath, $decoded];
     }
 }
