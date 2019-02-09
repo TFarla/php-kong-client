@@ -20,8 +20,9 @@
     <rule ref="rulesets/codesize.xml/TooManyMethods" />
     <rule ref="rulesets/codesize.xml/ExcessiveClassComplexity"/>
     <rule ref="rulesets/controversial.xml"/>
-    <rule ref="rulesets/design.xml" />
-    <rule ref="rulesets/design.xml/CouplingBetweenObjects" />
+    <rule ref="rulesets/design.xml" >
+        <exclude name="CouplingBetweenObjects" />
+    </rule>
     <rule ref="rulesets/naming.xml">
         <exclude name="ShortVariable"/>
     </rule>
@@ -33,7 +34,7 @@
         <priority>3</priority>
         <properties>
             <property name="minimum" description="Minimum length for a variable, property or parameter name" value="3"/>
-            <property name="exceptions" value="id,q,w,i,j,v,e,f,fp" />
+            <property name="exceptions" value="id,ip,q,w,i,j,v,e,f,fp" />
         </properties>
     </rule>
     <rule ref="rulesets/unusedcode.xml"/>

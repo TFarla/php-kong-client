@@ -1,0 +1,77 @@
+{
+  "data": [
+    {
+      "id": "885a0392-ef1b-4de3-aacf-af3f1697ce2c",
+      "created_at": 1422386534,
+      "updated_at": 1422386534,
+      "name": "my-route",
+      "protocols": [
+        "http",
+        "https"
+      ],
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "hosts": [
+        "example.com",
+        "foo.test"
+      ],
+      "paths": [
+        "/foo",
+        "/bar"
+      ],
+      "regex_priority": 0,
+      "strip_path": true,
+      "preserve_host": false,
+      "service": {
+        "id": "a3395f66-2af6-4c79-bea2-1b6933764f80"
+      }
+    },
+    {
+      "id": "4fe14415-73d5-4f00-9fbc-c72a0fccfcb2",
+      "created_at": 1422386534,
+      "updated_at": 1422386534,
+      "name": "my-route",
+      "protocols": [
+        "tcp",
+        "tls"
+      ],
+      "regex_priority": 0,
+      "strip_path": true,
+      "preserve_host": false,
+      "snis": [
+        "foo.test",
+        "example.com"
+      ],
+      "sources": [
+        {
+          "ip": "10.1.0.0/16",
+          "port": 1234
+        },
+        {
+          "ip": "10.2.2.2"
+        },
+        {
+          "port": 9123
+        }
+      ],
+      "destinations": [
+        {
+          "ip": "10.1.0.0/16",
+          "port": 1234
+        },
+        {
+          "ip": "10.2.2.2"
+        },
+        {
+          "port": 9123
+        }
+      ],
+      "service": {
+        "id": "ea29aaa3-3b2d-488c-b90c-56df8e0dd8c6"
+      }
+    }
+  ],
+  "next": "http://localhost:8001/routes?offset=6378122c-a0a1-438d-a5c6-efabae9fb969"
+}

@@ -7,6 +7,7 @@ namespace TFarla\KongClient;
 use Http\Client\HttpClient;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use TFarla\KongClient\Route\RouteTransformer;
 
 class KongClient
 {
@@ -97,5 +98,33 @@ class KongClient
     {
         $uri = "/services/$id";
         $this->jsonClient->delete($uri);
+    }
+
+    public function getRoutes(): RoutePaginatedResult
+    {
+        $response = $this->jsonClient->get('/routes');
+        $body = $this->jsonClient->readBody($response);
+        $next = $body['next'] ?? null;
+
+        $routes = [];
+        foreach (($body['data'] ?? []) as $rawRoute) {
+            $route = RouteTransformer::fromArray($rawRoute);
+            $routes[] = $route;
+        }
+
+        return new RoutePaginatedResult($routes, $next);
+    }
+
+    /**
+     * @param string $id
+     * @return Route
+     * @throws \Http\Client\Exception
+     */
+    public function getRoute(string $id): Route
+    {
+        $response = $this->jsonClient->get("/route/$id");
+        $body = $this->jsonClient->readBody($response);
+
+        return RouteTransformer::fromArray($body);
     }
 }
