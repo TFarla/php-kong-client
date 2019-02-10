@@ -7,25 +7,20 @@ services:
   - postgresql
 
 env:
-  - KONG_DATABASE=postgres
-  - KONG_PG_DATABASE=kong
-  - KONG_PG_HOST=localhost
-  - KONG_PG_PASSWORD=kong
-  - KONG_PG_USER=kong
-  - KONG_BASE_URL=http://localhost:8001
+  - KONG_DATABASE=postgres KONG_PG_DATABASE=kong KONG_PG_HOST=localhost KONG_PG_PASSWORD=kong KONG_PG_USER=kong KONG_BASE_URL=http://localhost:8001
 
 before_script:
   - wget https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-1.0.2.bionic.all.deb
-  - dpkg -i kong-community-edition-1.0.2.bionic.all.deb
+  - sudo dpkg -i kong-community-edition-1.0.2.bionic.all.deb
 
   - psql -c "CREATE DATABASE kong;" -U postgres
   - psql -c "CREATE USER kong WITH PASSWORD 'kong';" -U postgres
 
-  - kong migrations bootstrap
+  - sudo kong migrations bootstrap
 
   - composer self-update
   - composer install --no-interaction
-  - kong start
+  - sudo kong start
 
 script:
   - composer run ci
