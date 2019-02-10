@@ -15,7 +15,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Test\\Unit\\KongClient\\": "./tests/unit",
+      "Test\\Unit\\KongClient\\": "./tests/Unit",
       "Test\\EndToEnd\\KongClient\\": "./tests/EndToEnd"
     }
   },
