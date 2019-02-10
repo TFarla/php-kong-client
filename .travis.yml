@@ -1,5 +1,7 @@
 language: php
 
+dist: xenial
+
 php:
   - 7.2
 
@@ -12,7 +14,7 @@ env:
 before_script:
   - sudo apt install -y libc6
 
-  - wget -O kong.deb https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-1.0.2.bionic.all.deb
+  - wget -O kong.deb https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-1.0.2.xenial.all.deb
   - sudo dpkg -i kong.deb
 
   - psql -c "CREATE DATABASE kong;" -U postgres
