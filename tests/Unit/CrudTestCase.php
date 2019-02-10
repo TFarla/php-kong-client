@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Test\KongClient;
+namespace Test\Unit\KongClient;
 
 use Http\Mock\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;

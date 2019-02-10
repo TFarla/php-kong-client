@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\KongClient;
+namespace Test\Unit\KongClient;
 
 use TFarla\KongClient\Json;
 use TFarla\KongClient\ServiceTransformer;
