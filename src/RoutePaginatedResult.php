@@ -29,7 +29,7 @@ class RoutePaginatedResult implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @return Route[]
      */
     public function getData(): array
     {

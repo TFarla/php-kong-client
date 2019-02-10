@@ -79,6 +79,12 @@ class KongClient
     public function postService(Service $service): Service
     {
         $rawService = ServiceTransformer::toArray($service);
+        foreach ($rawService as $key => $value) {
+            if (is_null($value)) {
+                unset($rawService[$key]);
+            }
+        }
+
         $response = $this->jsonClient->post('/services', [], [], $rawService);
         $body = $this->jsonClient->readBody($response);
 

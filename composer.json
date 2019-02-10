@@ -15,7 +15,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Test\\Unit\\KongClient\\": "./tests/unit"
+      "Test\\Unit\\KongClient\\": "./tests/unit",
+      "Test\\EndToEnd\\KongClient\\": "./tests/EndToEnd"
     }
   },
   "scripts": {
@@ -40,6 +41,9 @@
     "nyholm/psr7": "^1.0",
     "spatie/phpunit-snapshot-assertions": "^2.1",
     "php-coveralls/php-coveralls": "^2.1",
-    "phpunit/phpunit": "^8.0"
+    "phpunit/phpunit": "^8.0",
+    "php-http/logger-plugin": "^1.1",
+    "php-http/guzzle6-adapter": "^2.0",
+    "symfony/console": "^4.2"
   }
 }

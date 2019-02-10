@@ -8,7 +8,7 @@ class ServiceTransformer
     public static function fromJson(array $rawService): Service
     {
         $service = new Service();
-        $service->setId($rawService['id']);
+        $service->setId($rawService['id'] ?? null);
         $service->setName($rawService['name']);
         $service->setConnectTimeout($rawService['connect_timeout']);
         $service->setWriteTimeout($rawService['write_timeout']);

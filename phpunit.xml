@@ -12,10 +12,16 @@
         <testsuite name="unit">
             <directory suffix="Test.php">./tests/unit</directory>
         </testsuite>
+        <testsuite name="e2e">
+            <directory suffix="Test.php">./tests/EndToEnd</directory>
+        </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>
+    <php>
+        <env name="KONG_BASE_URL" value="http://kong:8001" />
+    </php>
 </phpunit>

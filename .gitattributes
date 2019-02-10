@@ -5,3 +5,4 @@
 /phpunit.xml export-ignore
 /changelog.md export-ignore
 /readme.md export-ignore
+/phpdocker export-ignore
