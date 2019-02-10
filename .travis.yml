@@ -16,7 +16,7 @@ env:
 
 before_script:
   - wget https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-1.0.2.bionic.all.deb
-  - kong-community-edition-1.0.2.bionic.all.deb
+  - dpkg -i kong-community-edition-1.0.2.bionic.all.deb
 
   - psql -c "CREATE DATABASE kong;" -U postgres
   - psql -c "CREATE USER kong WITH PASSWORD 'kong';" -U postgres
