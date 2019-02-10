@@ -9,6 +9,10 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use TFarla\KongClient\Route\RouteTransformer;
 
+/**
+ * Class KongClient
+ * @package TFarla\KongClient
+ */
 class KongClient
 {
     /**
@@ -57,6 +61,7 @@ class KongClient
     /**
      * @param string $nameOrId
      * @return Service|null
+     * @throws \Http\Client\Exception
      */
     public function getService(string $nameOrId): ?Service
     {
@@ -69,6 +74,7 @@ class KongClient
     /**
      * @param Service $service
      * @return Service
+     * @throws \Http\Client\Exception
      */
     public function postService(Service $service): Service
     {
@@ -79,6 +85,11 @@ class KongClient
         return ServiceTransformer::fromJson($body);
     }
 
+    /**
+     * @param Service $service
+     * @return Service
+     * @throws \Http\Client\Exception
+     */
     public function putService(Service $service): Service
     {
         $id = $service->getId();
@@ -94,12 +105,20 @@ class KongClient
         return ServiceTransformer::fromJson($body);
     }
 
+    /**
+     * @param string $id
+     * @throws \Http\Client\Exception
+     */
     public function deleteService(string $id): void
     {
         $uri = "/services/$id";
         $this->jsonClient->delete($uri);
     }
 
+    /**
+     * @return RoutePaginatedResult
+     * @throws \Http\Client\Exception
+     */
     public function getRoutes(): RoutePaginatedResult
     {
         $response = $this->jsonClient->get('/routes');
@@ -122,9 +141,53 @@ class KongClient
      */
     public function getRoute(string $id): Route
     {
-        $response = $this->jsonClient->get("/route/$id");
+        $response = $this->jsonClient->get("/routes/$id");
         $body = $this->jsonClient->readBody($response);
 
         return RouteTransformer::fromArray($body);
+    }
+
+    /**
+     * @param Route $route
+     * @return Route
+     * @throws \Http\Client\Exception
+     */
+    public function postRoute(Route $route): Route
+    {
+        $requestBody = RouteTransformer::toArray($route);
+        $response = $this->jsonClient->post('/routes', [], [], $requestBody);
+        $body = $this->jsonClient->readBody($response);
+
+        return RouteTransformer::fromArray($body);
+    }
+
+    /**
+     * @param Route $route
+     * @return Route
+     * @throws \Http\Client\Exception
+     */
+    public function putRoute(Route $route): Route
+    {
+        $id = $route->getId();
+        if (is_null($id)) {
+            throw new \InvalidArgumentException('Can not update a route when it has no id');
+        }
+
+        $uri = "/routes/$id";
+        $requestBody = RouteTransformer::toArray($route);
+        $response = $this->jsonClient->put($uri, [], [], $requestBody);
+        $body = $this->jsonClient->readBody($response);
+
+        return RouteTransformer::fromArray($body);
+    }
+
+    /**
+     * @param string $id
+     * @throws \Http\Client\Exception
+     */
+    public function deleteRoute(string $id): void
+    {
+        $uri = "/routes/$id";
+        $this->jsonClient->delete($uri);
     }
 }
