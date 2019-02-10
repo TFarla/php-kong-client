@@ -28,7 +28,7 @@ class Service
     /**
      * @var string|null
      */
-    private $uri;
+    private $url;
     /**
      * @var string|null
      */
@@ -248,17 +248,17 @@ class Service
     /**
      * @return string|null
      */
-    public function getUri(): ?string
+    public function getUrl(): ?string
     {
-        return $this->uri;
+        return $this->url;
     }
 
     /**
-     * @param string|null $uri
+     * @param string|null $url
      */
-    public function setUri(?string $uri): void
+    public function setUrl(?string $url): void
     {
-        $this->uri = $uri;
+        $this->url = $url;
     }
 
     /**

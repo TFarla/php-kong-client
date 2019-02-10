@@ -3,6 +3,9 @@
 
 namespace TFarla\KongClient;
 
+use Http\Client\Common\Exception\ClientErrorException;
+use Http\Client\Common\Exception\ServerErrorException;
+use Http\Client\Exception\HttpException;
 use Http\Client\HttpClient;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
@@ -133,7 +136,23 @@ class JsonClient
             $request = $request->withBody($body);
         }
 
-        return $this->httpClient->sendRequest($request);
+        $response = $this->httpClient->sendRequest($request);
+        $statusCode = $response->getStatusCode();
+        if ($statusCode >= 200 && $statusCode < 300) {
+            return $response;
+        }
+
+        if ($statusCode >= 400 && $statusCode < 500) {
+            $message = $this->getErrorMessageFromResponse($response);
+            throw new ClientErrorException($message, $request, $response);
+        }
+
+        if ($statusCode >= 500) {
+            $message = $this->getErrorMessageFromResponse($response);
+            throw new ServerErrorException($message, $request, $response);
+        }
+
+        throw new HttpException($response->getReasonPhrase(), $request, $response);
     }
 
     /**
@@ -176,5 +195,20 @@ class JsonClient
         return $request
             ->withHeader('Content-Type', $contentType)
             ->withHeader('Accept', $contentType);
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return mixed
+     */
+    private function getErrorMessageFromResponse(ResponseInterface $response)
+    {
+        $body = $response->getBody();
+        $contents = $body->getContents();
+        $body = Json::decode($contents);
+        $response->getBody()->rewind();
+        $message = $body['message'];
+
+        return $message;
     }
 }

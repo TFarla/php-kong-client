@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace TFarla\KongClient;
 
+use Http\Client\Exception\RequestException;
 use Http\Client\HttpClient;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use TFarla\KongClient\Exception\ValidationException;
 use TFarla\KongClient\Route\RouteTransformer;
 
 /**
@@ -78,14 +80,27 @@ class KongClient
      */
     public function postService(Service $service): Service
     {
-        $rawService = ServiceTransformer::toArray($service);
-        foreach ($rawService as $key => $value) {
-            if (is_null($value)) {
-                unset($rawService[$key]);
+        $pairs = [
+            ['name', $service->getName()],
+            ['url', $service->getUrl()],
+            ['protocol', $service->getProtocol()],
+            ['host', $service->getHost()],
+            ['port', $service->getPort()],
+            ['path', $service->getPath()],
+            ['retries', $service->getRetries()],
+            ['read_timeout', $service->getReadTimeout()],
+            ['write_timeout', $service->getWriteTimeout()],
+            ['connect_timeout', $service->getConnectTimeout()]
+        ];
+
+        $requestBody = [];
+        foreach ($pairs as list($key, $value)) {
+            if (!is_null($value)) {
+                $requestBody[$key] = $value;
             }
         }
 
-        $response = $this->jsonClient->post('/services', [], [], $rawService);
+        $response = $this->jsonClient->post('/services', [], [], $requestBody);
         $body = $this->jsonClient->readBody($response);
 
         return ServiceTransformer::fromJson($body);
