@@ -83,7 +83,7 @@ class RouteTest extends TestCase
         $route->setServiceId($this->serviceId);
 
         $createdRoute = $this->kong->postRoute($route);
-        $id = $this->getId($route);
+        $id = $this->getId($createdRoute);
         $actual = $this->kong->getRoute($id);
         $this->assertEquals($createdRoute, $actual);
     }

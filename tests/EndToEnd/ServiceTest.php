@@ -91,7 +91,7 @@ class ServiceTest extends TestCase
         if (is_null($id)) {
             throw new \UnexpectedValueException('Id should not be null');
         }
-        
+
         $this->kong->deleteService($id);
         $this->assertNull($this->kong->getService($id));
     }
