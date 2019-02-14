@@ -22,7 +22,7 @@ before_script:
   - psql -c "CREATE DATABASE kong;" -U postgres
   - psql -c "CREATE USER kong WITH PASSWORD 'kong';" -U postgres
 
-  - php -r "if (intval( shell_exec('kong version') )) { shell_exec('kong migrations bootstrap'); } else { shell_exec('kong migrations up'); }"
+  - sudo kong migrations up
 
   - composer self-update
   - composer install --no-interaction
