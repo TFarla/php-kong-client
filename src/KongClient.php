@@ -32,8 +32,7 @@ class KongClient
         HttpClient $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory
-    )
-    {
+    ) {
         $this->jsonClient = new JsonClient(
             $httpClient,
             $requestFactory,
