@@ -9,12 +9,14 @@ services:
   - postgresql
 
 env:
-  - KONG_DATABASE=postgres KONG_PG_DATABASE=kong KONG_PG_HOST=localhost KONG_PG_PASSWORD=kong KONG_PG_USER=kong KONG_BASE_URL=http://localhost:8001
+  - KONG_DATABASE=postgres KONG_PG_DATABASE=kong KONG_PG_HOST=localhost KONG_PG_PASSWORD=kong KONG_PG_USER=kong KONG_BASE_URL=http://localhost:8001 KONG_DEB_LOCATION=https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-1.0.2.xenial.all.deb
+  - KONG_DATABASE=postgres KONG_PG_DATABASE=kong KONG_PG_HOST=localhost KONG_PG_PASSWORD=kong KONG_PG_USER=kong KONG_BASE_URL=http://localhost:8001 KONG_DEB_LOCATION=https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-0.15.0.xenial.all.deb
+  - KONG_DATABASE=postgres KONG_PG_DATABASE=kong KONG_PG_HOST=localhost KONG_PG_PASSWORD=kong KONG_PG_USER=kong KONG_BASE_URL=http://localhost:8001 KONG_DEB_LOCATION=https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-0.14.0.xenial.all.deb
 
 before_script:
   - sudo apt install -y libc6
 
-  - wget -O kong.deb https://bintray.com/kong/kong-community-edition-deb/download_file?file_path=dists/kong-community-edition-1.0.2.xenial.all.deb
+  - wget -O kong.deb $KONG_DEB_LOCATION
   - sudo dpkg -i kong.deb
 
   - psql -c "CREATE DATABASE kong;" -U postgres
