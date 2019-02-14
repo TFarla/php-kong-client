@@ -32,7 +32,8 @@ class KongClient
         HttpClient $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory
-    ) {
+    )
+    {
         $this->jsonClient = new JsonClient(
             $httpClient,
             $requestFactory,
@@ -41,21 +42,33 @@ class KongClient
     }
 
     /**
+     * @param int|null $size
      * @return ServicePaginatedResult
      * @throws \Http\Client\Exception
      */
-    public function getServices(): ServicePaginatedResult
+    public function getServices(?int $size = null, string $offset = null): ServicePaginatedResult
     {
-        $response = $this->jsonClient->get('/services');
+        $queryParams = [];
+        if (!is_null($size)) {
+            $queryParams['size'] = $size;
+        }
+
+        if (!is_null($offset)) {
+            $queryParams['offset'] = $offset;
+        }
+
+
+        $response = $this->jsonClient->get('/services', [], $queryParams);
         $body = $this->jsonClient->readBody($response);
 
         $next = $body['next'] ?? null;
+        $offset = $body['offset'] ?? null;
         $data = [];
         foreach ($body['data'] as $rawService) {
             $data[] = ServiceTransformer::fromJson($rawService);
         }
 
-        $result = new ServicePaginatedResult($data, $next);
+        $result = new ServicePaginatedResult($data, $next, $offset);
 
         return $result;
     }

@@ -8,6 +8,36 @@ use TFarla\KongClient\Service;
 class ServiceTest extends TestCase
 {
     /** @test */
+    public function itShouldSupportCursorBasedPagination()
+    {
+        $amountOfServices = 10;
+        $services = [];
+        $range = range(1, $amountOfServices);
+        foreach ($range as $i) {
+            $service = new Service();
+            $service->setName("service$i");
+            $service->setUrl('http://example.com');
+
+            $services[] = $this->kong->postService($service);
+        }
+
+        $offset = null;
+        $actualServices = [];
+        foreach (array_reverse($range) as $i) {
+            $result = $this->kong->getServices(1, $offset);
+            $this->assertCount(1, $result->getData());
+            $actualServices[] = $result->getData()[0];
+            $offset = $result->getOffset();
+        }
+
+
+        sort($services);
+        sort($actualServices);
+
+        $this->assertEquals($services, $actualServices);
+    }
+
+    /** @test */
     public function itShouldConfigureService()
     {
         $service = new Service();

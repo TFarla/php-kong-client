@@ -16,14 +16,21 @@ class ServicePaginatedResult
     private $next = null;
 
     /**
+     * @var string|null
+     */
+    private $offset = null;
+
+    /**
      * ServicePaginatedResult constructor.
      * @param Service[] $data
      * @param string|null $next
+     * @param string|null $offset
      */
-    public function __construct(array $data, ?string $next = null)
+    public function __construct(array $data, ?string $next = null, ?string $offset = null)
     {
         $this->data = $data;
         $this->next = $next;
+        $this->offset = $offset;
     }
 
     /**
@@ -40,5 +47,13 @@ class ServicePaginatedResult
     public function getNext()
     {
         return $this->next;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOffset(): ?string
+    {
+        return $this->offset;
     }
 }
