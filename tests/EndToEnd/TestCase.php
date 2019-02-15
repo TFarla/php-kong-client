@@ -51,6 +51,7 @@ class TestCase extends PHPUnitTestCase
             Psr17FactoryDiscovery::findStreamFactory()
         );
 
+        $this->deletePlugins();
         $this->deleteAllServices();
     }
 
@@ -67,6 +68,16 @@ class TestCase extends PHPUnitTestCase
             $id = $service->getId();
             if ($id) {
                 $this->kong->deleteService($id);
+            }
+        }
+    }
+
+    public function deletePlugins()
+    {
+        foreach ($this->kong->getPlugins()->getData() as $plugin) {
+            $id = $plugin->getId();
+            if ($id) {
+                $this->kong->deletePlugin($id);
             }
         }
     }

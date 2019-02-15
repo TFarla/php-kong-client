@@ -233,4 +233,128 @@ class KongClient
         $uri = "/routes/$id";
         $this->jsonClient->delete($uri);
     }
+
+    /**
+     * @param int|null $size
+     * @param string|null $offset
+     * @return PluginPaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    public function getPlugins(?int $size = null, ?string $offset = null): PluginPaginatedResult
+    {
+        return $this->doGetPlugins("/plugins", $size, $offset);
+    }
+
+    /**
+     * @param string $routeId
+     * @param int|null $size
+     * @param string|null $offset
+     * @return PluginPaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    public function getPluginsForRoute(
+        string $routeId,
+        ?int $size = null,
+        ?string $offset = null
+    ): PluginPaginatedResult {
+        return $this->doGetPlugins("/routes/$routeId/plugins", $size, $offset);
+    }
+
+    /**
+     * @param string $serviceId
+     * @param int|null $size
+     * @param string|null $offset
+     * @return PluginPaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    public function getPluginsForService(
+        string $serviceId,
+        ?int $size = null,
+        ?string $offset = null
+    ): PluginPaginatedResult {
+        return $this->doGetPlugins("/services/$serviceId/plugins", $size, $offset);
+    }
+
+    /**
+     * @param string $uri
+     * @return PluginPaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    private function doGetPlugins(string $uri, ?int $size = null, ?string $offset = null)
+    {
+        $queryParams = [];
+        if (!is_null($size)) {
+            $queryParams['size'] = $size;
+        }
+
+        if (!is_null($offset)) {
+            $queryParams['offset'] = $offset;
+        }
+
+        $data = [];
+        $resp = $this->jsonClient->get($uri, [], $queryParams);
+        $body = $this->jsonClient->readBody($resp);
+
+        $next = $body['next'] ?? null;
+        $offset = $body['offset'] ?? null;
+
+        foreach ($body['data'] as $rawPlugin) {
+            $data[] = PluginTransformer::fromResponseBody($rawPlugin);
+        }
+
+        $result = new PluginPaginatedResult($data, $next, $offset);
+
+        return $result;
+    }
+
+    /**
+     * @param string $id
+     * @return Plugin
+     * @throws \Http\Client\Exception
+     */
+    public function getPlugin(string $id): Plugin
+    {
+        $resp = $this->jsonClient->get("/plugins/$id");
+        $body = $this->jsonClient->readBody($resp);
+
+        return PluginTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param Plugin $plugin
+     * @return Plugin
+     * @throws \Http\Client\Exception
+     */
+    public function postPlugin(Plugin $plugin): Plugin
+    {
+        $requestBody = PluginTransformer::toRequestBody($plugin);
+        $resp = $this->jsonClient->post('/plugins', [], [], $requestBody);
+        $body = $this->jsonClient->readBody($resp);
+
+        return PluginTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param Plugin $plugin
+     * @return Plugin
+     * @throws \Http\Client\Exception
+     */
+    public function putPlugin(Plugin $plugin): Plugin
+    {
+        $uri = "/plugins/{$plugin->getId()}";
+        $requestBody = PluginTransformer::toRequestBody($plugin);
+        $resp = $this->jsonClient->put($uri, [], [], $requestBody);
+        $body = $this->jsonClient->readBody($resp);
+
+        return PluginTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param string $id
+     * @throws \Http\Client\Exception
+     */
+    public function deletePlugin(string $id): void
+    {
+        $this->jsonClient->delete("/plugins/$id");
+    }
 }

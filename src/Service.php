@@ -58,17 +58,6 @@ class Service
      */
     private $readTimeout;
 
-    public static function __set_state($anArray)
-    {
-        $obj = new self();
-        foreach ($anArray as $key => $value) {
-            $method = "set$key";
-            $obj->$method($value);
-        }
-
-        return $obj;
-    }
-
     /**
      * @return string|null
      */
