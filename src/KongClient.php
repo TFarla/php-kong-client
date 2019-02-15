@@ -30,7 +30,8 @@ class KongClient
         HttpClient $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory
-    ) {
+    )
+    {
         $this->jsonClient = new JsonClient(
             $httpClient,
             $requestFactory,
@@ -256,7 +257,8 @@ class KongClient
         string $routeId,
         ?int $size = null,
         ?string $offset = null
-    ): PluginPaginatedResult {
+    ): PluginPaginatedResult
+    {
         return $this->doGetPlugins("/routes/$routeId/plugins", $size, $offset);
     }
 
@@ -271,7 +273,8 @@ class KongClient
         string $serviceId,
         ?int $size = null,
         ?string $offset = null
-    ): PluginPaginatedResult {
+    ): PluginPaginatedResult
+    {
         return $this->doGetPlugins("/services/$serviceId/plugins", $size, $offset);
     }
 
@@ -356,5 +359,76 @@ class KongClient
     public function deletePlugin(string $id): void
     {
         $this->jsonClient->delete("/plugins/$id");
+    }
+
+    /**
+     * @param int|null $size
+     * @param string|null $offset
+     * @return ConsumerPaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    public function getConsumers(?int $size = null, ?string $offset = null): ConsumerPaginatedResult
+    {
+        $queryParams = [];
+        if (!is_null($size)) {
+            $queryParams['size'] = $size;
+        }
+
+        if (!is_null($offset)) {
+            $queryParams['offset'] = $offset;
+        }
+
+        $resp = $this->jsonClient->get('/consumers', [], $queryParams);
+        $body = $this->jsonClient->readBody($resp);
+
+        $data = [];
+        $next = $body['next'] ?? null;
+        $offset = $body['offset'] ?? null;
+        foreach ($body['data'] as $rawConsumer) {
+            $data[] = ConsumerTransformer::fromResponseBody($rawConsumer);
+        }
+
+
+        $result = new ConsumerPaginatedResult($data, $next, $offset);
+
+        return $result;
+    }
+
+    /**
+     * @param Consumer $consumer
+     * @return Consumer
+     * @throws \Http\Client\Exception
+     */
+    public function postConsumer(Consumer $consumer): Consumer
+    {
+        $requestBody = ConsumerTransformer::toRequest($consumer);
+        $resp = $this->jsonClient->post('/consumers', [], [], $requestBody);
+        $body = $this->jsonClient->readBody($resp);
+        return ConsumerTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param string $id
+     * @throws \Http\Client\Exception
+     */
+    public function deleteConsumer(string $id): void
+    {
+        $this->jsonClient->delete("/consumers/$id");
+    }
+
+    /**
+     * @param Consumer $consumer
+     * @return Consumer
+     * @throws \Http\Client\Exception
+     */
+    public function putConsumer(Consumer $consumer): Consumer
+    {
+        $uri = "/consumers/{$consumer->getId()}";
+        $requestBody = ConsumerTransformer::toRequest($consumer);
+
+        $resp = $this->jsonClient->put($uri, [], [], $requestBody);
+        $body = $this->jsonClient->readBody($resp);
+
+        return ConsumerTransformer::fromResponseBody($body);
     }
 }
