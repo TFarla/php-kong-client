@@ -34,6 +34,35 @@ class RouteTest extends TestCase
     }
 
     /** @test */
+    public function itShouldSupportCursorBasedPagination()
+    {
+        $amountOfRoutes = 10;
+        $routes = [];
+        $range = range(1, $amountOfRoutes);
+        foreach ($range as $i) {
+            $route = new Route();
+            $route->setPaths(['/']);
+            $route->setServiceId($this->serviceId);
+
+            $routes[] = $this->kong->postRoute($route);
+        }
+
+        $offset = null;
+        $actualRoutes = [];
+        for ($i = 0; $i < $amountOfRoutes; $i++) {
+            $result = $this->kong->getRoutes(1, $offset);
+            $this->assertCount(1, $result->getData());
+            $actualRoutes[] = $result->getData()[0];
+            $offset = $result->getOffset();
+        }
+
+        sort($routes);
+        sort($actualRoutes);
+
+        $this->assertEquals($routes, $actualRoutes);
+    }
+
+    /** @test */
     public function itShouldPostRoute()
     {
         $route = new Route();
@@ -71,6 +100,8 @@ class RouteTest extends TestCase
 
         $updatedRoute = $this->kong->putRoute($createdRoute);
         $createdRoute->setUpdateAt($updatedRoute->getUpdateAt());
+        $createdRoute->setCreatedAt($updatedRoute->getCreatedAt());
+
         $this->assertEquals($createdRoute, $updatedRoute);
     }
 

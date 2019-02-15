@@ -7,22 +7,6 @@ use TFarla\KongClient\Route\RouteTransformer;
 
 class KongClientRouteTest extends CrudTestCase
 {
-    /** @test */
-    public function itShouldGetRoutes()
-    {
-        $fixture = 'routes.json';
-        $this->addMockResponse($fixture);
-        $fixtureInfo = $this->readFixtureFromFile($fixture);
-
-        $result = $this->kong->getRoutes();
-        $this->assertRequestHasBeenSent($this->mockClient);
-
-        $this->assertJsonStringEqualsJsonFile(
-            $fixtureInfo[0],
-            Json::encode($result)
-        );
-    }
-
     /**
      * @dataProvider routeFixtureProvider
      * @test

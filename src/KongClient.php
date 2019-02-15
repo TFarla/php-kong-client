@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace TFarla\KongClient;
 
-use Http\Client\Exception\RequestException;
 use Http\Client\HttpClient;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use TFarla\KongClient\Exception\ValidationException;
 use TFarla\KongClient\Route\RouteTransformer;
 
 /**
@@ -149,14 +147,26 @@ class KongClient
     }
 
     /**
+     * @param int|null $size
+     * @param string|null $offset
      * @return RoutePaginatedResult
      * @throws \Http\Client\Exception
      */
-    public function getRoutes(): RoutePaginatedResult
+    public function getRoutes(?int $size = null, ?string $offset = null): RoutePaginatedResult
     {
-        $response = $this->jsonClient->get('/routes');
+        $queryParams = [];
+        if (!is_null($size)) {
+            $queryParams['size'] = $size;
+        }
+
+        if (!is_null($offset)) {
+            $queryParams['offset'] = $offset;
+        }
+
+        $response = $this->jsonClient->get('/routes', [], $queryParams);
         $body = $this->jsonClient->readBody($response);
         $next = $body['next'] ?? null;
+        $offset = $body['offset'] ?? null;
 
         $routes = [];
         foreach (($body['data'] ?? []) as $rawRoute) {
@@ -164,7 +174,7 @@ class KongClient
             $routes[] = $route;
         }
 
-        return new RoutePaginatedResult($routes, $next);
+        return new RoutePaginatedResult($routes, $next, $offset);
     }
 
     /**

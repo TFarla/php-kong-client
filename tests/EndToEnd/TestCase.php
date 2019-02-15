@@ -51,6 +51,11 @@ class TestCase extends PHPUnitTestCase
             Psr17FactoryDiscovery::findStreamFactory()
         );
 
+        $this->deleteAllServices();
+    }
+
+    public function deleteAllServices()
+    {
         foreach ($this->kong->getRoutes()->getData() as $route) {
             $id = $route->getId();
             if ($id) {

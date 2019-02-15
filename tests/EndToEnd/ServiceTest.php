@@ -23,14 +23,13 @@ class ServiceTest extends TestCase
 
         $offset = null;
         $actualServices = [];
-        foreach (array_reverse($range) as $i) {
+        for ($i = 0; $i < $amountOfServices; $i++) {
             $result = $this->kong->getServices(1, $offset);
             $this->assertCount(1, $result->getData());
             $actualServices[] = $result->getData()[0];
             $offset = $result->getOffset();
         }
-
-
+        
         sort($services);
         sort($actualServices);
 

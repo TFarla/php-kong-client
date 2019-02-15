@@ -3,9 +3,7 @@
 
 namespace TFarla\KongClient;
 
-use TFarla\KongClient\Route\RouteTransformer;
-
-class RoutePaginatedResult implements \JsonSerializable
+class RoutePaginatedResult
 {
     /**
      * @var Route[]
@@ -18,14 +16,21 @@ class RoutePaginatedResult implements \JsonSerializable
     private $next;
 
     /**
+     * @var string|null
+     */
+    private $offset;
+
+    /**
      * RoutePaginatedResult constructor.
      * @param array $data
      * @param string|null $next
+     * @param string|null $offset
      */
-    public function __construct(array $data, ?string $next)
+    public function __construct(array $data, ?string $next, ?string $offset)
     {
         $this->data = $data;
         $this->next = $next;
+        $this->offset = $offset;
     }
 
     /**
@@ -45,22 +50,10 @@ class RoutePaginatedResult implements \JsonSerializable
     }
 
     /**
-     * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
+     * @return string|null
      */
-    public function jsonSerialize()
+    public function getOffset(): ?string
     {
-        $rawRoutes = [];
-        foreach ($this->data as $route) {
-            $rawRoutes[] = RouteTransformer::toArray($route);
-        }
-
-        return [
-            'data' => $rawRoutes,
-            'next' => $this->next
-        ];
+        return $this->offset;
     }
 }
