@@ -3,7 +3,6 @@
 
 namespace TFarla\KongClient;
 
-
 /**
  * Class ConsumerTransformer
  * @package TFarla\KongClient

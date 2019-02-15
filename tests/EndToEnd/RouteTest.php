@@ -38,8 +38,7 @@ class RouteTest extends TestCase
     {
         $amountOfRoutes = 10;
         $routes = [];
-        $range = range(1, $amountOfRoutes);
-        foreach ($range as $i) {
+        for ($i = 0; $i < $amountOfRoutes; $i++) {
             $route = new Route();
             $route->setPaths(['/']);
             $route->setServiceId($this->serviceId);
@@ -47,19 +46,9 @@ class RouteTest extends TestCase
             $routes[] = $this->kong->postRoute($route);
         }
 
-        $offset = null;
-        $actualRoutes = [];
-        for ($i = 0; $i < $amountOfRoutes; $i++) {
-            $result = $this->kong->getRoutes(1, $offset);
-            $this->assertCount(1, $result->getData());
-            $actualRoutes[] = $result->getData()[0];
-            $offset = $result->getOffset();
-        }
-
-        sort($routes);
-        sort($actualRoutes);
-
-        $this->assertEquals($routes, $actualRoutes);
+        $this->assertHasPaginationSupport($routes, function ($size, $offset) {
+            return $this->kong->getRoutes($size, $offset);
+        });
     }
 
     /** @test */

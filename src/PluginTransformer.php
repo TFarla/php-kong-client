@@ -28,6 +28,11 @@ class PluginTransformer
             $requestBody['route'] = ['id' => $routeId];
         }
 
+        $consumerId = $plugin->getConsumerId();
+        if (!is_null($consumerId)) {
+            $requestBody['consumer'] = ['id' => $consumerId];
+        }
+
         return $requestBody;
     }
 

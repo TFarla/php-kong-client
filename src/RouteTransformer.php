@@ -1,9 +1,9 @@
 <?php
 
 
-namespace TFarla\KongClient\Route;
+namespace TFarla\KongClient;
 
-use TFarla\KongClient\Route;
+use TFarla\KongClient\Route\Target;
 
 /**
  * Class RouteTransformer

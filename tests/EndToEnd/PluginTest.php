@@ -3,10 +3,8 @@
 
 namespace Test\EndToEnd\KongClient;
 
-use TFarla\KongClient\KongClient;
+use TFarla\KongClient\Consumer;
 use TFarla\KongClient\Plugin;
-use TFarla\KongClient\PluginPaginatedResult;
-use TFarla\KongClient\PluginTransformer;
 use TFarla\KongClient\Route;
 use TFarla\KongClient\Service;
 
@@ -16,10 +14,16 @@ class PluginTest extends TestCase
      * @var string
      */
     private $serviceId;
+
     /**
      * @var string
      */
     private $routeId;
+
+    /**
+     * @var string
+     */
+    private $consumerId;
 
     protected function setUp(): void
     {
@@ -36,12 +40,20 @@ class PluginTest extends TestCase
         $route->setPaths(['/']);
         $route = $this->kong->postRoute($route);
 
+        $consumer = new Consumer();
+        $consumer->setUsername('test');
+        $consumer = $this->kong->postConsumer($consumer);
+
         if (!is_null($service->getId())) {
             $this->serviceId = $service->getId();
         }
 
         if (!is_null($route->getId())) {
             $this->routeId = $route->getId();
+        }
+
+        if (!is_null($consumer->getId())) {
+            $this->consumerId = $consumer->getId();
         }
     }
 
@@ -111,25 +123,6 @@ class PluginTest extends TestCase
         });
     }
 
-    private function assertHasPaginationSupport($plugins, callable $getPlugins)
-    {
-        $offset = null;
-        $actualPlugins = [];
-        $size = 1;
-        for ($i = 0; $i < count($plugins); $i++) {
-            /** @var PluginPaginatedResult $result */
-            $result = $getPlugins($size, $offset);
-            $this->assertCount(1, $result->getData());
-            $actualPlugins[] = $result->getData()[0];
-            $offset = $result->getOffset();
-        }
-
-        sort($plugins);
-        sort($actualPlugins);
-
-        $this->assertEquals($plugins, $actualPlugins);
-    }
-
     /**
      * @dataProvider pluginProvider
      * @test
@@ -159,6 +152,31 @@ class PluginTest extends TestCase
         $plugin->setRouteId($this->routeId);
         $createdPlugin = $this->kong->postPlugin($plugin);
         $result = $this->kong->getPluginsForRoute($this->routeId);
+        $this->assertEquals([$createdPlugin], $result->getData());
+        $this->assertNull($result->getNext());
+        $this->assertNull($result->getOffset());
+    }
+
+    /**
+     * @dataProvider pluginProvider
+     * @test
+     * @param Plugin $plugin
+     * @throws \Http\Client\Exception
+     */
+    public function itShouldGetPluginsForConsumer(Plugin $plugin): void
+    {
+        $this->kong->postPlugin($plugin);
+
+        $consumerPlugin = new Plugin();
+        $consumerPlugin->setName('rate-limiting');
+        $consumerPlugin->setConfig([
+            'second' => 5
+        ]);
+
+        $consumerPlugin->setConsumerId($this->consumerId);
+        $createdPlugin = $this->kong->postPlugin($consumerPlugin);
+
+        $result = $this->kong->getPluginsForConsumer($this->consumerId);
         $this->assertEquals([$createdPlugin], $result->getData());
         $this->assertNull($result->getNext());
         $this->assertNull($result->getOffset());

@@ -7,7 +7,6 @@ namespace TFarla\KongClient;
 use Http\Client\HttpClient;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use TFarla\KongClient\Route\RouteTransformer;
 
 /**
  * Class KongClient
@@ -30,8 +29,7 @@ class KongClient
         HttpClient $httpClient,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory
-    )
-    {
+    ) {
         $this->jsonClient = new JsonClient(
             $httpClient,
             $requestFactory,
@@ -257,8 +255,7 @@ class KongClient
         string $routeId,
         ?int $size = null,
         ?string $offset = null
-    ): PluginPaginatedResult
-    {
+    ): PluginPaginatedResult {
         return $this->doGetPlugins("/routes/$routeId/plugins", $size, $offset);
     }
 
@@ -273,9 +270,20 @@ class KongClient
         string $serviceId,
         ?int $size = null,
         ?string $offset = null
-    ): PluginPaginatedResult
-    {
+    ): PluginPaginatedResult {
         return $this->doGetPlugins("/services/$serviceId/plugins", $size, $offset);
+    }
+
+    /**
+     * @param string $consumerId
+     * @param int|null $size
+     * @param string|null $offset
+     * @return PluginPaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    public function getPluginsForConsumer(string $consumerId, ?int $size = null, ?string $offset = null)
+    {
+        return $this->doGetPlugins("/consumers/$consumerId/plugins", $size, $offset);
     }
 
     /**

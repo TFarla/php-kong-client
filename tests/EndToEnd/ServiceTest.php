@@ -21,19 +21,9 @@ class ServiceTest extends TestCase
             $services[] = $this->kong->postService($service);
         }
 
-        $offset = null;
-        $actualServices = [];
-        for ($i = 0; $i < $amountOfServices; $i++) {
-            $result = $this->kong->getServices(1, $offset);
-            $this->assertCount(1, $result->getData());
-            $actualServices[] = $result->getData()[0];
-            $offset = $result->getOffset();
-        }
-        
-        sort($services);
-        sort($actualServices);
-
-        $this->assertEquals($services, $actualServices);
+        $this->assertHasPaginationSupport($services, function ($size, $offset) {
+            return $this->kong->getServices($size, $offset);
+        });
     }
 
     /** @test */

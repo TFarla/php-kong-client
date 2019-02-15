@@ -3,7 +3,6 @@
 
 namespace Test\EndToEnd\KongClient;
 
-
 use TFarla\KongClient\Consumer;
 use TFarla\KongClient\ConsumerPaginatedResult;
 
@@ -36,29 +35,6 @@ class ConsumerTest extends TestCase
         $this->assertHasPaginationSupport($consumers, function ($size, $offset) {
             return $this->kong->getConsumers($size, $offset);
         });
-    }
-
-    /**
-     * @param $items
-     * @param callable $getItems
-     */
-    private function assertHasPaginationSupport($items, callable $getItems)
-    {
-        $offset = null;
-        $actualItems = [];
-        $size = 1;
-        for ($i = 0; $i < count($items); $i++) {
-            /** @var ConsumerPaginatedResult $result */
-            $result = $getItems($size, $offset);
-            $this->assertCount(1, $result->getData());
-            $actualItems[] = $result->getData()[0];
-            $offset = $result->getOffset();
-        }
-
-        sort($items);
-        sort($actualItems);
-
-        $this->assertEquals($items, $actualItems);
     }
 
     /**

@@ -11,6 +11,7 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use TFarla\KongClient\KongClient;
 use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
+use TFarla\KongClient\PaginatedResult;
 
 class TestCase extends PHPUnitTestCase
 {
@@ -91,5 +92,29 @@ class TestCase extends PHPUnitTestCase
                 $this->kong->deletePlugin($id);
             }
         }
+    }
+
+
+    /**
+     * @param array $items
+     * @param callable $getItems
+     */
+    protected function assertHasPaginationSupport($items, callable $getItems)
+    {
+        $offset = null;
+        $actualItems = [];
+        $size = 1;
+        for ($i = 0; $i < count($items); $i++) {
+            /** @var PaginatedResult $result */
+            $result = $getItems($size, $offset);
+            $this->assertCount(1, $result->getData());
+            $actualItems[] = $result->getData()[0];
+            $offset = $result->getOffset();
+        }
+
+        sort($items);
+        sort($actualItems);
+
+        $this->assertEquals($items, $actualItems);
     }
 }

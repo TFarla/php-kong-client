@@ -3,7 +3,6 @@
 
 namespace TFarla\KongClient;
 
-
 class Consumer
 {
     /**
