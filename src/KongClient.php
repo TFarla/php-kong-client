@@ -439,4 +439,86 @@ class KongClient
 
         return ConsumerTransformer::fromResponseBody($body);
     }
+
+    /**
+     * @param Certificate $certificate
+     * @return Certificate
+     * @throws \Http\Client\Exception
+     */
+    public function postCertificate(Certificate $certificate): Certificate
+    {
+        $requestBody = CertificateTransformer::toRequestBody($certificate);
+
+        $resp = $this->jsonClient->post('/certificates', [], [], $requestBody);
+        $body = $this->jsonClient->readBody($resp);
+
+        return CertificateTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param string $id
+     * @return Certificate
+     * @throws \Http\Client\Exception
+     */
+    public function getCertificate(string $id): Certificate
+    {
+        $resp = $this->jsonClient->get("/certificates/$id");
+        $body = $this->jsonClient->readBody($resp);
+
+        return CertificateTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param Certificate $certificate
+     * @return Certificate
+     * @throws \Http\Client\Exception
+     */
+    public function putCertificate(Certificate $certificate): Certificate
+    {
+        $id = $certificate->getId();
+        $uri = "/certificates/$id";
+        $requestBody = CertificateTransformer::toRequestBody($certificate);
+        $resp = $this->jsonClient->put($uri, [], [], $requestBody);
+        $body = $this->jsonClient->readBody($resp);
+
+        return CertificateTransformer::fromResponseBody($body);
+    }
+
+    /**
+     * @param int|null $size
+     * @param string|null $offset
+     * @return CertificatePaginatedResult
+     * @throws \Http\Client\Exception
+     */
+    public function getCertificates(?int $size = null, ?string $offset = null): CertificatePaginatedResult
+    {
+        $queryParams = [];
+        if (!is_null($size)) {
+            $queryParams['size'] = $size;
+        }
+
+        if (!is_null($offset)) {
+            $queryParams['offset'] = $offset;
+        }
+
+        $resp = $this->jsonClient->get('/certificates', [], $queryParams);
+        $body = $this->jsonClient->readBody($resp);
+        $next = $body['next'] ?? null;
+        $offset = $body['offset'] ?? null;
+        $certificates = [];
+        foreach ($body['data'] as $rawCertificate) {
+            $certificates[] = CertificateTransformer::fromResponseBody($rawCertificate);
+        }
+
+        return new CertificatePaginatedResult($certificates, $next, $offset);
+    }
+
+    /**
+     * @param string $id
+     * @throws \Http\Client\Exception
+     */
+    public function deleteCertificate(string $id): void
+    {
+        $this->jsonClient->delete("/certificates/$id");
+    }
 }

@@ -52,6 +52,7 @@ class TestCase extends PHPUnitTestCase
             Psr17FactoryDiscovery::findStreamFactory()
         );
 
+        $this->deleteCertificates();
         $this->deleteConsumers();
         $this->deletePlugins();
         $this->deleteAllServices();
@@ -80,6 +81,16 @@ class TestCase extends PHPUnitTestCase
             $id = $consumer->getId();
             if ($id) {
                 $this->kong->deleteConsumer($id);
+            }
+        }
+    }
+
+    public function deleteCertificates()
+    {
+        foreach ($this->kong->getCertificates()->getData() as $certificate) {
+            $id = $certificate->getId();
+            if ($id) {
+                $this->kong->deleteCertificate($id);
             }
         }
     }
